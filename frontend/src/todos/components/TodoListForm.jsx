@@ -127,6 +127,7 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
                 sx={{ margin: '8px' }}
                 size='small'
                 color='secondary'
+                disabled={!item.id}
                 onClick={() => {
                   deleteTodoItem(item).then((success) => {
                     if (success) {
