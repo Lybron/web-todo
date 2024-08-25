@@ -8,7 +8,7 @@ import database from '../data/database.js';
    * @param {string} listId - The unique identifier for the TodoList the item belongs to.
    * @param {string} title - The title of the Todo item.
    * @param {boolean} isCompleted - The completion status of the Todo item.
-   * @param {Date} dueDate - The date when the Todo item should be completed.
+   * @param {string} dueDate - The date when the Todo item should be completed.
    * @param {Date} createdAt - The date when the Todo item was created.
 */
 

@@ -22,6 +22,8 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
       return false
     }
 
+    todo.dueDate = new Date(todo.dueDate).toString() === 'Invalid Date' ? null : todo.dueDate
+
     const response = await fetch(`${baseURL}/todo/save`, {
       method: 'POST',
       headers: {
@@ -119,6 +121,32 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
                   saveTodoItem(item).then(() => {
                     updateTodos()
                   })
+                }}
+              />
+              <input
+                type='date'
+                value={item.dueDate || ''}
+                disabled={item.isCompleted || !item.id}
+                onChange={(event) => {
+                  setTodos([
+                    ...todos.slice(0, index),
+                    { ...item, dueDate: event.target.value },
+                    ...todos.slice(index + 1),
+                  ])
+                }}
+                onBlur={() => {
+                  saveTodoItem(item).then(() => {
+                    updateTodos()
+                  })
+                }}
+                style={{
+                  marginLeft: '8px',
+                  marginTop: '1rem',
+                  height: '20px',
+                  padding: '16.5px 14px',
+                  borderRadius: '4px',
+                  border: '1px solid rgba(0, 0, 0, 0.23)',
+                  fontSize: '16px',
                 }}
               />
               <Button
