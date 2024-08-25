@@ -103,7 +103,12 @@ export const TodoLists = ({ style }) => {
                   onClick={() => {
                     deleteTodoList(list).then((success) => {
                       if (success) {
-                        updateLists()
+                        fetchTodoLists().then((lists) => {
+                          setTodoLists(lists)
+                          if (list.id === activeList.id) {
+                            setActiveList()
+                          }
+                        })
                       }
                     })
                   }}
