@@ -63,6 +63,10 @@ export const TodoLists = ({ style }) => {
   }
 
   const toggeleEditing = async (list) => {
+    if (!list.title) {
+      return
+    }
+
     if (editing === list.id) {
       setEditing()
       await saveTodoList(list)
@@ -130,7 +134,7 @@ export const TodoLists = ({ style }) => {
                 <Button
                   sx={{ margin: '8px' }}
                   size='small'
-                  disabled={editing && editing !== list.id}
+                  disabled={(editing && editing !== list.id) || !list.title}
                   onClick={(event) => {
                     event.stopPropagation()
                     toggeleEditing(list)
@@ -142,7 +146,7 @@ export const TodoLists = ({ style }) => {
                   sx={{ margin: '8px' }}
                   size='small'
                   color='secondary'
-                  disabled={editing}
+                  disabled={!!editing}
                   onClick={(event) => {
                     event.stopPropagation()
                     deleteTodoList(list).then((success) => {
