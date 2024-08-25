@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { TextField, Card, CardContent, CardActions, Button, Typography } from '@mui/material'
+import { TextField, Card, CardContent, CardActions, Box, Button, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import AddIcon from '@mui/icons-material/Add'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import RadioButtonUncheckedRoundedIcon from '@mui/icons-material/RadioButtonUncheckedRounded'
+import moment from 'moment'
 
 export const TodoListForm = ({ todoList, checkCompleted }) => {
   const [todos, setTodos] = useState([])
@@ -123,32 +124,55 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
                   })
                 }}
               />
-              <input
-                type='date'
-                value={item.dueDate || ''}
-                disabled={item.isCompleted || !item.id}
-                onChange={(event) => {
-                  setTodos([
-                    ...todos.slice(0, index),
-                    { ...item, dueDate: event.target.value },
-                    ...todos.slice(index + 1),
-                  ])
-                }}
-                onBlur={() => {
-                  saveTodoItem(item).then(() => {
-                    updateTodos()
-                  })
-                }}
-                style={{
-                  marginLeft: '8px',
-                  marginTop: '1rem',
-                  height: '20px',
-                  padding: '16.5px 14px',
-                  borderRadius: '4px',
-                  border: '1px solid rgba(0, 0, 0, 0.23)',
-                  fontSize: '16px',
-                }}
-              />
+
+              {!item.isCompleted ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    marginTop: '1rem',
+                    marginLeft: '8px',
+                    padding: '6px',
+                    borderRadius: '4px',
+                    border: '1px solid rgba(0, 0, 0, 0.23)',
+                  }}
+                >
+                  <input
+                    type='date'
+                    value={item.dueDate || ''}
+                    disabled={item.isCompleted || !item.id}
+                    onChange={(event) => {
+                      setTodos([
+                        ...todos.slice(0, index),
+                        { ...item, dueDate: event.target.value },
+                        ...todos.slice(index + 1),
+                      ])
+                    }}
+                    onBlur={() => {
+                      saveTodoItem(item).then(() => {
+                        updateTodos()
+                      })
+                    }}
+                    style={{
+                      width: '100%',
+                      marginLeft: '8px',
+                      border: 'none',
+                      fontSize: '16px',
+                    }}
+                  />
+                  <Box sx={{ wordWrap: 'normal' }}>
+                    {item.dueDate ? (
+                      <Typography variant='caption'>
+                        Due {moment(item.dueDate).fromNow()}
+                      </Typography>
+                    ) : (
+                      <Typography variant='caption'>No due date set</Typography>
+                    )}
+                  </Box>
+                </Box>
+              ) : null}
+
               <Button
                 sx={{ margin: '8px' }}
                 size='small'
