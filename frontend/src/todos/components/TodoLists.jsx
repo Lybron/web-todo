@@ -1,5 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import {
+  Box,
+  Button,
   Card,
   CardContent,
   List,
@@ -10,63 +12,124 @@ import {
 } from '@mui/material'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 import { TodoListForm } from './TodoListForm'
+import AddIcon from '@mui/icons-material/Add'
+import EditRoundedIcon from '@mui/icons-material/EditRounded'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-// Simulate network
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
-
-const fetchTodoLists = () => {
-  return sleep(1000).then(() =>
-    Promise.resolve({
-      '0000000001': {
-        id: '0000000001',
-        title: 'First List',
-        todos: ['First todo of first list!'],
-      },
-      '0000000002': {
-        id: '0000000002',
-        title: 'Second List',
-        todos: ['First todo of second list!'],
-      },
-    })
-  )
-}
+import DeleteIcon from '@mui/icons-material/Delete'
 
 export const TodoLists = ({ style }) => {
-  const [todoLists, setTodoLists] = useState({})
+  const [todoLists, setTodoLists] = useState([])
   const [activeList, setActiveList] = useState()
+
+  const baseURL = 'http://localhost:3001'
+
+  // Fetch TodoLists from the server
+  const fetchTodoLists = async () => {
+    const response = await fetch(`${baseURL}/todo-lists`)
+    return response.json()
+  }
+
+  // Save a TodoList on the server
+  const saveTodoList = async (list) => {
+    const response = await fetch(`${baseURL}/todo-lists/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(list),
+    })
+    return response.ok
+  }
+
+  // Delete a TodoList on the server
+  const deleteTodoList = async (list) => {
+    const response = await fetch(`${baseURL}/todo-lists/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(list),
+    })
+    return response.ok
+  }
+
+  // Update the list of TodoLists on the frontend
+  const updateLists = () => {
+    fetchTodoLists().then(setTodoLists)
+  }
 
   useEffect(() => {
     fetchTodoLists().then(setTodoLists)
   }, [])
 
-  if (!Object.keys(todoLists).length) return null
   return (
     <Fragment>
       <Card style={style}>
         <CardContent>
-          <Typography component='h2'>My Todo Lists</Typography>
+          <Box display='flex' justifyContent='space-between' alignItems='center'>
+            <Typography component='h2'>My Todo Lists</Typography>
+            <Button
+              type='button'
+              color='primary'
+              onClick={() => {
+                saveTodoList({ title: `List ${todoLists.length + 1}` }).then((success) => {
+                  if (success) {
+                    fetchTodoLists().then((lists) => {
+                      setTodoLists(lists)
+                      setActiveList(lists[lists.length - 1])
+                    })
+                  }
+                })
+              }}
+            >
+              New List <AddIcon />
+            </Button>
+          </Box>
           <List>
-            {Object.keys(todoLists).map((key) => (
-              <ListItemButton key={key} onClick={() => setActiveList(key)}>
+            {todoLists.map((list) => (
+              <ListItemButton key={list.id} onClick={() => setActiveList(list)}>
                 <ListItemIcon>
-                  <ReceiptIcon />
+                  {list.isCompleted ? <CheckCircleIcon color='success' /> : <ReceiptIcon />}
                 </ListItemIcon>
-                <ListItemText primary={todoLists[key].title} />
+                <ListItemText primary={list.title} />
+                <Button>
+                  <EditRoundedIcon />
+                </Button>
+                <Button
+                  sx={{ margin: '8px' }}
+                  size='small'
+                  color='secondary'
+                  onClick={() => {
+                    deleteTodoList(list).then((success) => {
+                      if (success) {
+                        updateLists()
+                      }
+                    })
+                  }}
+                >
+                  <DeleteIcon />
+                </Button>
               </ListItemButton>
             ))}
           </List>
         </CardContent>
       </Card>
-      {todoLists[activeList] && (
+      {activeList && (
         <TodoListForm
-          key={activeList} // use key to make React recreate component to reset internal state
-          todoList={todoLists[activeList]}
-          saveTodoList={(id, { todos }) => {
-            const listToUpdate = todoLists[id]
-            setTodoLists({
-              ...todoLists,
-              [id]: { ...listToUpdate, todos },
-            })
+          key={activeList.id} // use key to make React recreate component to reset internal state
+          todoList={activeList}
+          checkCompleted={(todos) => {
+            const allCompleted = todos.every((x) => x.isCompleted)
+            if (allCompleted !== activeList.isCompleted) {
+              activeList.isCompleted = allCompleted
+              console.log(allCompleted, activeList.isCompleted)
+              saveTodoList(activeList).then((success) => {
+                if (success) {
+                  updateLists()
+                }
+              })
+            }
           }}
         />
       )}
