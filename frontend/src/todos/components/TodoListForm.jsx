@@ -19,7 +19,7 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
   // Save a Todo item on the server
   const saveTodoItem = async (todo) => {
     if (!todo.title) {
-      return
+      return false
     }
 
     const response = await fetch(`${baseURL}/todo/save`, {
@@ -116,10 +116,8 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
                   ])
                 }}
                 onBlur={() => {
-                  saveTodoItem(item).then((success) => {
-                    if (success) {
-                      updateTodos()
-                    }
+                  saveTodoItem(item).then(() => {
+                    updateTodos()
                   })
                 }}
               />
