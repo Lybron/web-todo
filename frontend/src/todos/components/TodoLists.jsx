@@ -125,7 +125,8 @@ export const TodoLists = ({ style }) => {
           key={activeList.id} // use key to make React recreate component to reset internal state
           todoList={activeList}
           checkCompleted={(todos) => {
-            const allCompleted = todos.every((x) => x.isCompleted)
+            const allCompleted = todos.length > 0 ? todos.every((x) => x.isCompleted) : false
+
             if (allCompleted !== activeList.isCompleted) {
               activeList.isCompleted = allCompleted
               console.log(allCompleted, activeList.isCompleted)
