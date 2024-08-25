@@ -1,4 +1,5 @@
 import TodoList from '../models/TodoList.js';
+import Todo from '../models/Todo.js';
 
 const saveOrUpdate = (req, res) => {
   const listData = req.body;
@@ -15,7 +16,10 @@ const getLists = (req, res) => {
 
 const deleteList = (req, res) => {
   const list = new TodoList(req.body);
+
+  Todo.removeByListId(list.id);
   list.remove();
+
   res.status(204).send();
 };
 

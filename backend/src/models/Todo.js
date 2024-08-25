@@ -39,6 +39,13 @@ class Todo {
       .sort((a, b) => a.createdAt - b.createdAt)
   }
 
+  static removeByListId(listId) {
+    const todos = Todo.findByListId(listId)
+    todos.forEach((todo) => {
+      todo.remove()
+    })
+  }
+
   save() {
     // Save a Todo to the database
     database.save(Todo.folderName, this.fileName, this)
