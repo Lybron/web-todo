@@ -8,6 +8,7 @@ import {
   ListItemButton,
   ListItemText,
   ListItemIcon,
+  TextField,
   Typography,
 } from '@mui/material'
 import ReceiptIcon from '@mui/icons-material/Receipt'
@@ -15,12 +16,14 @@ import { TodoListForm } from './TodoListForm'
 import AddIcon from '@mui/icons-material/Add'
 import EditRoundedIcon from '@mui/icons-material/EditRounded'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import SaveIcon from '@mui/icons-material/Save'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 
 export const TodoLists = ({ style }) => {
   const [todoLists, setTodoLists] = useState([])
   const [activeList, setActiveList] = useState()
+  const [editing, setEditing] = useState()
 
   const baseURL = 'http://localhost:3001'
 
@@ -59,6 +62,17 @@ export const TodoLists = ({ style }) => {
     fetchTodoLists().then(setTodoLists)
   }
 
+  const toggeleEditing = async (list) => {
+    if (editing === list.id) {
+      setEditing()
+      await saveTodoList(list)
+      updateLists()
+      return
+    }
+
+    setEditing(list.id)
+  }
+
   useEffect(() => {
     fetchTodoLists().then(setTodoLists)
   }, [])
@@ -87,20 +101,50 @@ export const TodoLists = ({ style }) => {
             </Button>
           </Box>
           <List>
-            {todoLists.map((list) => (
+            {todoLists.map((list, index) => (
               <ListItemButton key={list.id} onClick={() => setActiveList(list)}>
                 <ListItemIcon>
                   {list.isCompleted ? <CheckCircleIcon color='success' /> : <ReceiptIcon />}
                 </ListItemIcon>
-                <ListItemText primary={list.title} />
-                <Button>
-                  <EditRoundedIcon />
+                {editing === list.id ? (
+                  <TextField
+                    fullWidth
+                    sx={{ flexGrow: 1, marginTop: '1rem' }}
+                    label='Set list title:'
+                    value={list.title}
+                    onChange={(event) => {
+                      setTodoLists([
+                        ...todoLists.slice(0, index),
+                        { ...list, title: event.target.value },
+                        ...todoLists.slice(index + 1),
+                      ])
+                    }}
+                    onBlur={() => {
+                      toggeleEditing(list)
+                    }}
+                  />
+                ) : (
+                  <ListItemText primary={list.title} />
+                )}
+
+                <Button
+                  sx={{ margin: '8px' }}
+                  size='small'
+                  disabled={editing && editing !== list.id}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    toggeleEditing(list)
+                  }}
+                >
+                  {editing === list.id ? <SaveIcon /> : <EditRoundedIcon />}
                 </Button>
                 <Button
                   sx={{ margin: '8px' }}
                   size='small'
                   color='secondary'
-                  onClick={() => {
+                  disabled={editing && editing !== list.id}
+                  onClick={(event) => {
+                    event.stopPropagation()
                     deleteTodoList(list).then((success) => {
                       if (success) {
                         fetchTodoLists().then((lists) => {
@@ -129,7 +173,6 @@ export const TodoLists = ({ style }) => {
 
             if (allCompleted !== activeList.isCompleted) {
               activeList.isCompleted = allCompleted
-              console.log(allCompleted, activeList.isCompleted)
               saveTodoList(activeList).then((success) => {
                 if (success) {
                   updateLists()
