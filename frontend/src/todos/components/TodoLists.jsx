@@ -142,7 +142,7 @@ export const TodoLists = ({ style }) => {
                   sx={{ margin: '8px' }}
                   size='small'
                   color='secondary'
-                  disabled={editing && editing !== list.id}
+                  disabled={editing}
                   onClick={(event) => {
                     event.stopPropagation()
                     deleteTodoList(list).then((success) => {
