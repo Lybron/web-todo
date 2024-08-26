@@ -54,7 +54,7 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
     return await saveTodoItem(todo)
   }
 
-  // Update the TodoList completion status a Todo's status changes
+  // Update the TodoList completion status as Todo's status changes
   const updateCompleted = (items) => {
     checkCompleted(items)
   }
@@ -67,10 +67,6 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
     })
   }
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
-  }
-
   useEffect(() => {
     fetchTodos().then((fetched) => {
       setTodos(fetched)
@@ -81,10 +77,7 @@ export const TodoListForm = ({ todoList, checkCompleted }) => {
     <Card sx={{ margin: '0 1rem' }}>
       <CardContent>
         <Typography component='h2'>{todoList.title}</Typography>
-        <form
-          onSubmit={handleSubmit}
-          style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}
-        >
+        <form style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
           {todos.map((item, index) => (
             <div key={index} style={{ display: 'flex', alignItems: 'center' }}>
               <Button
